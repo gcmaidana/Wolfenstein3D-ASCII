@@ -1,6 +1,6 @@
 # Wolfenstein3D-ASCII
 
-**[Play Episode 1 in your browser](https://gcmaidana.com/Wolfenstein3D-ASCII/)** — no installation or file uploads required.
+Episode 1 runs in the browser after you publish the static site. No installation or file uploads are required.
 
 A C++ ASCII graphics port of the real Wolfenstein 3D engine, with Windows and WebAssembly builds. Original gameplay, maps, enemies, audio, menus, and saves come from Wolf4SDL. The final game framebuffer is converted to colored ASCII glyphs before display.
 
@@ -57,7 +57,7 @@ The SDK installer requires Python to bootstrap itself. `build-web.ps1` finds Nin
 
 Output: `build-web/index.html`, `wolf-ascii.js`, and `wolf-ascii.wasm`. Run `./scripts/package-web.ps1` to package them with Episode 1 assets in `dist/web/`. Serve through HTTP, not `file://`.
 
-For your website, the prepared **`dist/web/`** folder contains these files plus source and license notices. Upload that folder to static hosting. Configure `.wasm` as `application/wasm`; gzip or Brotli is recommended. No server-side game process, database, threads, or cross-origin isolation is required. GitHub Pages deploys the checked-in `docs/` folder using `.github/workflows/pages.yml`. To refresh that folder after rebuilding, run `./scripts/package-web.ps1 -Publish` and commit the result. In repository Settings → Pages, select GitHub Actions as the source. Custom domains can be configured there separately.
+For your website, the prepared **`dist/web/`** folder contains these files plus source and license notices. Upload that folder to static hosting. Configure `.wasm` as `application/wasm`; gzip or Brotli is recommended. No server-side game process, database, threads, or cross-origin isolation is required. To publish on GitHub Pages, enable Pages in repository Settings → Pages and select GitHub Actions as the source. The workflow deploys the checked-in `docs/` folder. To refresh it after rebuilding, run `./scripts/package-web.ps1 -Publish` and commit the result. Add your chosen subdomain in that Pages settings panel and create its CNAME record at your DNS provider.
 
 The Wasm heap starts at **32 MiB**, grows only if needed, and is capped at **128 MiB**. A Chrome level-start/movement/display-mode test stayed at 32 MiB. This measures the Wasm heap, not total tab or GPU memory. Default ASCII conversion buffers use approximately 1.7 MiB in addition to engine allocations. The game is still rasterized first; ASCII reduces visual detail, not all engine work.
 
