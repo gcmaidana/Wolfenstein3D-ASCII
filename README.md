@@ -1,5 +1,7 @@
 # Wolfenstein3D-ASCII
 
+**[Play Episode 1 in your browser](https://gcmaidana.com/Wolfenstein3D-ASCII/)** — no installation or file uploads required.
+
 A C++ ASCII graphics port of the real Wolfenstein 3D engine, with Windows and WebAssembly builds. Original gameplay, maps, enemies, audio, menus, and saves come from Wolf4SDL. The final game framebuffer is converted to colored ASCII glyphs before display.
 
 ## Play on Windows
