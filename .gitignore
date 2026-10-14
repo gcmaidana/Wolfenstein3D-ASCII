@@ -1,0 +1,12 @@
+/build*/
+/downloads/
+/dist/
+/data/*
+!/data/README.md
+/tools/emsdk/
+*.wl1
+*.WL1
+*.wl6
+*.WL6
+*.bmp
+!/docs/*.wl1

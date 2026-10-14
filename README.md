@@ -1,0 +1,107 @@
+# Wolfenstein3D-ASCII
+
+A C++ ASCII graphics port of the real Wolfenstein 3D engine, with Windows and WebAssembly builds. Original gameplay, maps, enemies, audio, menus, and saves come from Wolf4SDL. The final game framebuffer is converted to colored ASCII glyphs before display.
+
+## Play on Windows
+
+Build the Windows version below, then double-click **`Play.cmd`**. The launcher copies the included Episode 1 data from `docs/` into `data/` when needed. No DOS emulator is needed.
+
+The high-score table starts with 10,000-point entries; an ordinary guard is worth 100 points. A run must qualify for the table to appear there.
+
+The shareware menu offers Episode 1 only: New Game opens difficulty selection directly. The main menu has no Back to Demo item; Back to Game appears only while a game is running.
+
+- Arrow keys: move and turn
+- Ctrl: fire; Space: open doors; Shift: run; Alt: strafe
+- Escape: menu; Enter: choose
+- F6: color ASCII → green ASCII → original pixels
+- F7: 80×50 ↔ 160×100 characters
+
+Menus and non-game screens, including the Get Psyched loading screen, always use original graphics. The selected ASCII mode resumes automatically during gameplay. The desktop output is an SDL window, **not a Windows Terminal renderer**. These are ordinary ASCII glyphs drawn from original built-in bitmaps; no font installation is needed.
+
+## Play in a browser
+
+Double-click **`Play-browser.cmd`**, then open the local address it prints. Node.js is required for the local server. A fresh clone uses the ready-to-play build in `docs/`. Episode 1 loads automatically and boots straight to the original main menu. No file picker or Start Game button is needed.
+
+The website includes the maps, graphics, and audio for one shareware episode, loaded into WebAssembly's virtual filesystem. Keyboard play is the browser default; automatic mouse capture is disabled so the page's controls stay usable. Save files currently last **only for that page session**. Reloading loses browser saves. Desktop saves remain in `data/`.
+
+## Build Windows
+
+Requires CMake 3.24+, Visual Studio C++ tools, SDL2, and SDL2_mixer. On this machine:
+
+```powershell
+./scripts/build-windows.ps1
+```
+
+The dependency prefix defaults to the existing `D:/vcpkg/installed/x64-windows`. On another machine, install SDL2 and SDL2_mixer through vcpkg and pass its installation prefix:
+
+```powershell
+./scripts/build-windows.ps1 -DependencyPrefix C:/vcpkg/installed/x64-windows
+```
+
+The script copies dependency DLLs beside the executable and runs converter tests. The optional `-Edition FULL` selects GT/ID v1.4 `.wl6` data for desktop. Other commercial versions need different engine definitions. The browser loader currently targets shareware v1.4 only.
+
+## Build WebAssembly
+
+The official Emscripten SDK **4.0.15** was installed locally in `tools/emsdk/` and activated without changing the system environment permanently. To reproduce on a fresh checkout:
+
+```powershell
+git clone https://github.com/emscripten-core/emsdk.git tools/emsdk
+./tools/emsdk/emsdk.bat install 4.0.15
+./tools/emsdk/emsdk.bat activate 4.0.15
+./scripts/build-web.ps1
+```
+
+The SDK installer requires Python to bootstrap itself. `build-web.ps1` finds Ninja from PATH or Visual Studio. Emscripten downloads and builds its SDL ports on the first compilation.
+
+Output: `build-web/index.html`, `wolf-ascii.js`, and `wolf-ascii.wasm`. Run `./scripts/package-web.ps1` to package them with Episode 1 assets in `dist/web/`. Serve through HTTP, not `file://`.
+
+For your website, the prepared **`dist/web/`** folder contains these files plus source and license notices. Upload that folder to static hosting. Configure `.wasm` as `application/wasm`; gzip or Brotli is recommended. No server-side game process, database, threads, or cross-origin isolation is required. GitHub Pages deploys the checked-in `docs/` folder using `.github/workflows/pages.yml`. To refresh that folder after rebuilding, run `./scripts/package-web.ps1 -Publish` and commit the result. In repository Settings → Pages, select GitHub Actions as the source. Custom domains can be configured there separately.
+
+The Wasm heap starts at **32 MiB**, grows only if needed, and is capped at **128 MiB**. A Chrome level-start/movement/display-mode test stayed at 32 MiB. This measures the Wasm heap, not total tab or GPU memory. Default ASCII conversion buffers use approximately 1.7 MiB in addition to engine allocations. The game is still rasterized first; ASCII reduces visual detail, not all engine work.
+
+## Why this engine
+
+Inspired by [doom-ascii](https://github.com/wojciech-graj/doom-ascii) and [DoomGeneric](https://github.com/ozkl/doomgeneric).
+
+The [original id source](https://github.com/id-Software/wolf3d) targets DOS-era systems. Replacing its platform-dependent code directly would be a substantially larger project. This port uses [Fabian Greffrath's Wolf4SDL](https://github.com/fabiangreffrath/wolf4sdl), pinned at **`a51c229ed89cab1904d68abb8938def3cf456725`**. The choice was based on inspectable SDL2 platform code and an upstream Windows/Linux/macOS build workflow, followed by local native and browser verification.
+
+The engine is kept under `engine/`, including its original notices. It is vendored at the pinned revision with small platform patches. There are no runtime downloads of engine code.
+
+## Structure
+
+| Path | Purpose |
+| --- | --- |
+| `src/ascii_core.*` | Platform-independent pixel-to-character conversion and glyph rasterization |
+| `src/ascii_sdl.*` | SDL presentation, display controls, opt-in capture hook |
+| `engine/` | Pinned Wolf4SDL source with platform integration patches |
+| `web/index.html` | Bundled Episode 1 browser loader and controls |
+| `scripts/` | Build, local server, packaging, and browser verification |
+| `tests/` | Converter stride, edge, color, monochrome, and invalid-input checks |
+
+The rendering hook is `VL_Flip()` in `engine/id_vl.cpp`. Engine pixel surfaces remain untouched, preserving palette changes and fizzle transitions. Browser builds use Asyncify and explicit yields in event/delay/presentation paths so legacy loops release the browser's main thread. Input, audio, and timing remain SDL-backed. A terminal backend can reuse `ascii::convert()` without changing gameplay.
+
+## Verification and limits
+
+Verified on this Windows 11 machine:
+
+- MSVC x64 Release build and CTest converter checks.
+- Actual shareware E1M1 startup under SDL's headless drivers, screenshot capture, and clean quit.
+- Emscripten 4.0.15 Release build.
+- Headless Chrome 155: data loading, menu navigation into a real level, movement changing the frame, color/green/original modes, detail change, no JavaScript runtime exceptions, and 32 MiB Wasm heap.
+- Captured native and browser frames were visually inspected.
+
+This is a playable initial port, not an exhaustive campaign certification. The full commercial edition, mobile/touch input, all levels, and audible sound quality have not been tested. Browser save persistence is not implemented. ASCII conversion makes very small text and dark details less legible; mode/detail controls help.
+
+Browser integration check (requires the `playwright` Node package and Chrome):
+
+```powershell
+node scripts/test-browser.cjs
+```
+
+It starts and stops its own localhost server. Native headless capture uses `SDL_VIDEODRIVER=dummy`, `SDL_AUDIODRIVER=dummy`, `WOLF_ASCII_CAPTURE=<absolute BMP path>`, and `WOLF_ASCII_QUIT_AFTER_CAPTURE=1`, then runs the executable from `data/` with `--nowait --tedlevel 0`. Optional `WOLF_ASCII_CAPTURE_FRAME` selects the frame number (default 180).
+
+## Licensing
+
+ASCII additions are GPL-2.0-or-later. The Wolf4SDL README offers the original engine under the GPL or id's historical license; this project uses the GPL option. Preserve upstream notices and provide corresponding source with binary distributions. The Nuked OPL3 implementation has its own LGPL notice in `engine/opl3.c`. SDL libraries have their own notices. See `LICENSE` and `THIRD_PARTY.md`.
+
+Game data is separate and is **not** made open-source by the engine release. The website package includes only the shareware Episode 1 data; the source archive excludes game data. See `data/README.md` for the shareware data provenance.

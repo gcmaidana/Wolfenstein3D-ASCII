@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wolfenstein / ASCII</title>
+<link rel="icon" href="data:,">
+<style>
+:root{color-scheme:dark;font:15px/1.6 ui-monospace,Consolas,monospace;background:#111410;color:#d3dccb}
+body{max-width:1080px;margin:0 auto;padding:32px 24px}header{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #3b4537;padding-bottom:18px}h1{font-size:24px;letter-spacing:-1px;margin:0}small,.muted{color:#93a18b}.tag{color:#b9e38b}main{margin-top:24px}.stage{background:#000;border:1px solid #3b4537;min-height:240px;display:grid;place-items:center}canvas{display:block;width:100%;aspect-ratio:4/3;object-fit:contain;image-rendering:pixelated;outline:none}button,input::file-selector-button{font:inherit;padding:9px 14px;border:1px solid #526147;background:#212a1b;color:#d7edc5;cursor:pointer}button:hover{background:#354528}button:disabled{opacity:.4;cursor:default}.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:18px 0}#status{white-space:pre-wrap}details{border-top:1px solid #3b4537;margin-top:26px;padding-top:12px}a{color:#b9e38b}kbd{border:1px solid #526147;padding:1px 5px}footer{margin-top:30px;font-size:12px}
+</style>
+<header><h1>WOLFENSTEIN <span class="tag">/ ASCII</span></h1><small>C++ → WebAssembly</small></header>
+<main>
+<p>Escape Castle Wolfenstein. ASCII gameplay, original menus.</p>
+<div id="loader">
+<p class="muted">Episode 1 · Escape from Wolfenstein. Ready to play—no files to select.</p>
+<div class="bar"><button id="retry" hidden>Retry download</button><span id="status" role="status">Loading Episode 1…</span></div>
+</div>
+<div class="stage"><canvas id="canvas" width="640" height="480" tabindex="0" aria-label="Wolfenstein game; keyboard controls described below"></canvas></div>
+<div class="bar">
+<button class="setting" data-mode="1" disabled>Color ASCII</button><button class="setting" data-mode="2" disabled>Green ASCII</button><button class="setting" data-mode="0" disabled>Original pixels</button>
+<button id="detail" disabled>Detail: 80 × 50</button><button id="full">Fullscreen</button>
+</div>
+<p><kbd>↑ ↓</kbd> Move · <kbd>← →</kbd> Turn · <kbd>Ctrl</kbd> Fire · <kbd>Space</kbd> Open · <kbd>Shift</kbd> Run · <kbd>Alt</kbd> Strafe · <kbd>Esc</kbd> Menu</p>
+<details><summary>About this demo</summary><p>This demo includes one episode: Escape from Wolfenstein. Its maps, graphics, and audio load automatically.</p><p>Save games last for this browser session only. Reloading resets them. Desktop saves persist on disk.</p><p>Menus always use original graphics. F6 cycles gameplay display modes; F7 changes detail. Click the canvas to restore keyboard focus.</p></details>
+</main><footer>Original game © id Software. Engine based on Wolf4SDL. ASCII additions under GPL-2.0-or-later. Game data is separate. <a href="source.zip">Project source</a> · <a href="THIRD_PARTY.md">Credits and licenses</a></footer>
+<script>
+const canvas=document.getElementById('canvas'),statusEl=document.getElementById('status'),retry=document.getElementById('retry');
+const required=['audiohed','audiot','gamemaps','maphead','vgadict','vgagraph','vgahead','vswap'].map(n=>n+'.wl1');
+let started=false,detail=0;
+var Module={canvas,noInitialRun:true,print:console.log,printErr:console.error,
+ onRuntimeInitialized(){loadEpisode();},
+ onAbort(reason){statusEl.textContent='Engine stopped: '+reason;document.getElementById('loader').hidden=false;},
+ onExit(){document.getElementById('loader').hidden=false;statusEl.textContent='Game closed. Reload this page to play again.';}
+};
+async function loadEpisode(){
+ retry.hidden=true;statusEl.textContent='Loading Episode 1…';
+ try{
+  const files=await Promise.all(required.map(async name=>{
+   const response=await fetch(name);
+   if(!response.ok)throw Error('Episode download failed');
+   const bytes=new Uint8Array(await response.arrayBuffer());
+   if(!bytes.length||bytes.length>8*1024*1024)throw Error('Invalid episode download');
+   return {name,bytes};
+  }));
+  for(const {name,bytes} of files)Module.FS.writeFile('/'+name,bytes);
+ }catch(error){retry.hidden=false;statusEl.textContent='Could not load Episode 1. Please retry.';return;}
+ bootGame();
+}
+function bootGame(){
+ if(started)return;
+ try{
+  Module.FS.mkdir('/saves');started=true;document.getElementById('loader').hidden=true;
+  document.querySelectorAll('.setting,#detail').forEach(b=>b.disabled=false);canvas.focus();
+  Module.callMain(['--nowait','--nograbmouse','--configdir','/saves']);
+ }catch(error){statusEl.textContent=error.message;document.getElementById('loader').hidden=false;}
+}
+retry.addEventListener('click',loadEpisode);
+document.querySelectorAll('.setting').forEach(b=>b.addEventListener('click',()=>{Module._WA_SetMode(Number(b.dataset.mode));canvas.focus();}));
+document.getElementById('detail').onclick=()=>{detail=1-detail;Module._WA_SetDetail(detail);document.getElementById('detail').textContent=detail?'Detail: 160 × 100':'Detail: 80 × 50';canvas.focus();};
+document.getElementById('full').onclick=()=>canvas.requestFullscreen?.();
+canvas.addEventListener('click',()=>canvas.focus());
+canvas.addEventListener('keydown',event=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','Tab','F6','F7'].includes(event.key))event.preventDefault();});
+</script>
+<script async src="wolf-ascii.js" onerror="document.getElementById('status').textContent='Engine missing. Build the WebAssembly target and serve this folder over HTTP.'"></script>
+</html>
