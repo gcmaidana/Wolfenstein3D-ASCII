@@ -6,6 +6,12 @@ I will also note, from my understanding, Episode 1 of Wolfenstein is free sharew
 
 Play it here: [https://wolfenstein3d-ascii.gcmaidana.com/](https://wolfenstein3d-ascii.gcmaidana.com/)
 
+## Screenshots
+
+![ASCII](https://raw.githubusercontent.com/gcmaidana/Wolfenstein3D-ASCII/refs/heads/main/asciiw3d.png)
+
+![Original color](https://raw.githubusercontent.com/gcmaidana/Wolfenstein3D-ASCII/refs/heads/main/colorw3d.png)
+
 ## Play on Windows
 
 Build the Windows version below, then double-click **`Play.cmd`**. The launcher copies the included Episode 1 data from `docs/` into `data/` when needed. No DOS emulator is needed.
@@ -21,12 +27,6 @@ The shareware menu offers Episode 1 only: New Game opens difficulty selection di
 - F7: 80×50 ↔ 160×100 characters
 
 Menus and non-game screens, including the Get Psyched loading screen, always use original graphics. The selected ASCII mode resumes automatically during gameplay. The desktop output is an SDL window, **not a Windows Terminal renderer**. These are ordinary ASCII glyphs drawn from original built-in bitmaps; no font installation is needed.
-
-## Screenshots
-
-![ASCII](https://raw.githubusercontent.com/gcmaidana/Wolfenstein3D-ASCII/refs/heads/main/asciiw3d.png)
-
-![Original color](https://raw.githubusercontent.com/gcmaidana/Wolfenstein3D-ASCII/refs/heads/main/colorw3d.png)
 
 ## Play in a browser
 
