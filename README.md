@@ -73,7 +73,7 @@ The Wasm heap starts at **32 MiB**, grows only if needed, and is capped at **128
 
 Inspired by [doom-ascii](https://github.com/wojciech-graj/doom-ascii) and [DoomGeneric](https://github.com/ozkl/doomgeneric).
 
-The [original id source](https://github.com/id-Software/wolf3d) targets DOS-era systems. Replacing its platform-dependent code directly would be a substantially larger project. This port uses [Fabian Greffrath's Wolf4SDL](https://github.com/fabiangreffrath/wolf4sdl), pinned at **`a51c229ed89cab1904d68abb8938def3cf456725`**. The choice was based on inspectable SDL2 platform code and an upstream Windows/Linux/macOS build workflow, followed by local native and browser verification.
+The [original id source](https://github.com/id-Software/wolf3d) targets DOS-era systems. Replacing its platform-dependent code directly would be a substantially larger project. This port uses [Fabian Greffrath's Wolf4SDL](https://github.com/fabiangreffrath/wolf4sdl). The choice was based on inspectable SDL2 platform code and an upstream Windows/Linux/macOS build workflow, followed by local native and browser verification.
 
 The engine is kept under `engine/`, including its original notices. It is vendored at the pinned revision with small platform patches. There are no runtime downloads of engine code.
 
