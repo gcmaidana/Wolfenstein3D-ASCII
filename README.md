@@ -4,7 +4,7 @@ This project was made entirely by GPT-6 Astra as I wanted to experiment with the
 
 I will also note, from my understanding, Episode 1 of Wolfenstein is free shareware, but the other episodes are not. I do not want to publish copyrighted material on my website or on my GitHub so this game only includes episode 1. There may be bugs or quirks with the game, I am not going to test every small functionality. This small project was just a for-fun experiment in testing GPT-6 Astra and I made it relatively quickly. Enjoy.
 
-Play it here: [wolfenstein3d-ascii.gcmaidana.com](wolfenstein3d-ascii.gcmaidana.com)
+Play it here: [https://wolfenstein3d-ascii.gcmaidana.com/](https://wolfenstein3d-ascii.gcmaidana.com/)
 
 ## Play on Windows
 
