@@ -22,6 +22,12 @@ The shareware menu offers Episode 1 only: New Game opens difficulty selection di
 
 Menus and non-game screens, including the Get Psyched loading screen, always use original graphics. The selected ASCII mode resumes automatically during gameplay. The desktop output is an SDL window, **not a Windows Terminal renderer**. These are ordinary ASCII glyphs drawn from original built-in bitmaps; no font installation is needed.
 
+## Screenshots
+
+![ASCII](https://raw.githubusercontent.com/gcmaidana/Wolfenstein3D-ASCII/refs/heads/main/asciiw3d.png)
+
+![Original color](https://raw.githubusercontent.com/gcmaidana/Wolfenstein3D-ASCII/refs/heads/main/colorw3d.png)
+
 ## Play in a browser
 
 Double-click **`Play-browser.cmd`**, then open the local address it prints. Node.js is required for the local server. A fresh clone uses the ready-to-play build in `docs/`. Episode 1 loads automatically and boots straight to the original main menu. No file picker or Start Game button is needed.
